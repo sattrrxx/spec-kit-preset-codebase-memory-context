@@ -49,6 +49,18 @@ specify preset resolve speckit.analyze
 specify preset resolve speckit.implement
 ```
 
+## Field Validation
+
+The v1.0.0 release was exercised end to end against two real repositories: a
+Spec Kit development checkout for the generic profile and Spring Petclinic for
+the Spring Boot Maven profile. The reproducible procedure, source commits,
+graph/index results, refresh check, limitations, and generated artifacts are in
+[the v1.0.0 field-validation report](docs/validation/v1.0.0.md).
+
+CI installs `codebase-memory-mcp==0.10.8` from PyPI, verifies the executable,
+and runs the backend contract test without a skip path. A green workflow
+therefore requires the supported backend to be present and compatible.
+
 Remove the preset with:
 
 ```bash

@@ -6,6 +6,16 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Reproducible v1.0.0 field-validation report and generated context artifacts
+  for a generic Python project and a Spring Boot Maven project.
+
+### Changed
+
+- CI now installs `codebase-memory-mcp==0.10.8` and fails when the backend
+  executable or required CLI contract is unavailable.
+
 ## [1.0.0] - 2026-08-26
 
 ### Added

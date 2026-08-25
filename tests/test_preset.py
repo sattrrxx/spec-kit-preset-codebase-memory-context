@@ -3,6 +3,7 @@
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -36,16 +37,32 @@ COMPLETION_MARKERS = {
     "speckit.implement": "## Done When",
 }
 
-CODEBASE_MEMORY_CLI = shutil.which("codebase-memory-mcp")
+ENV_CODEBASE_MEMORY_CLI = Path(sys.executable).with_name("codebase-memory-mcp")
+CODEBASE_MEMORY_CLI = (
+    str(ENV_CODEBASE_MEMORY_CLI)
+    if ENV_CODEBASE_MEMORY_CLI.is_file()
+    else shutil.which("codebase-memory-mcp")
+)
 
 
 def test_release_files_and_documentation_are_publishable():
     readme = (PRESET_DIR / "README.md").read_text(encoding="utf-8")
+    validation_report = PRESET_DIR / "docs" / "validation" / "v1.0.0.md"
+    validation_artifacts = (
+        PRESET_DIR
+        / "docs"
+        / "validation"
+        / "artifacts"
+    )
 
     assert (PRESET_DIR / "LICENSE").is_file()
     assert (PRESET_DIR / "CHANGELOG.md").is_file()
+    assert validation_report.is_file()
+    assert (validation_artifacts / "spec-kit-codebase.md").is_file()
+    assert (validation_artifacts / "spring-petclinic-codebase.md").is_file()
     assert "## When to Use It" in readme
     assert "## When Not to Use It" in readme
+    assert "docs/validation/v1.0.0.md" in readme
     assert (
         "specify preset add --from "
         "https://github.com/philo-x/spec-kit-preset-codebase-memory-context/"
@@ -54,12 +71,17 @@ def test_release_files_and_documentation_are_publishable():
     assert "codebase-memory-mcp 0.10.8 or newer" in readme
     assert "does not require\nPyYAML" in readme
 
+    report = validation_report.read_text(encoding="utf-8")
+    assert "11,778 nodes and 58,243 edges" in report
+    assert "2,076 nodes and 4,385 edges" in report
+    assert "e554ba44b3fa9288ebb300d1a190e6491e85b36a3670fbb10db523c450147beb" in report
 
-@pytest.mark.skipif(
-    CODEBASE_MEMORY_CLI is None,
-    reason="codebase-memory-mcp is optional for preset structure tests",
-)
+
 def test_installed_codebase_memory_backend_contract():
+    assert CODEBASE_MEMORY_CLI is not None, (
+        "codebase-memory-mcp must be installed; CI pins the supported backend "
+        "in requirements-dev.txt"
+    )
     version_result = subprocess.run(
         [CODEBASE_MEMORY_CLI, "--version"],
         check=True,
