@@ -3,7 +3,7 @@ schema_version: "1.0"
 preset:
   id: "codebase-memory-context"
   name: "Verified Codebase Context"
-  version: "1.0.0"
+  version: "1.0.1"
   description: "Generate verified repository context and use it across planning, tasks, analysis, and implementation"
   author: "Xu Yin (philo-x)"
   repository: "https://github.com/philo-x/spec-kit-preset-codebase-memory-context"

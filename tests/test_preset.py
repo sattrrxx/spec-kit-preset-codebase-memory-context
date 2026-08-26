@@ -1,5 +1,6 @@
 """Tests for the Verified Codebase Context preset."""
 
+import json
 import re
 import shutil
 import subprocess
@@ -48,6 +49,7 @@ CODEBASE_MEMORY_CLI = (
 def test_release_files_and_documentation_are_publishable():
     readme = (PRESET_DIR / "README.md").read_text(encoding="utf-8")
     validation_report = PRESET_DIR / "docs" / "validation" / "v1.0.0.md"
+    workflow_report = PRESET_DIR / "docs" / "validation" / "v1.0.1.md"
     validation_artifacts = (
         PRESET_DIR
         / "docs"
@@ -58,15 +60,17 @@ def test_release_files_and_documentation_are_publishable():
     assert (PRESET_DIR / "LICENSE").is_file()
     assert (PRESET_DIR / "CHANGELOG.md").is_file()
     assert validation_report.is_file()
+    assert workflow_report.is_file()
     assert (validation_artifacts / "spec-kit-codebase.md").is_file()
     assert (validation_artifacts / "spring-petclinic-codebase.md").is_file()
     assert "## When to Use It" in readme
     assert "## When Not to Use It" in readme
     assert "docs/validation/v1.0.0.md" in readme
+    assert "docs/validation/v1.0.1.md" in readme
     assert (
         "specify preset add --from "
         "https://github.com/philo-x/spec-kit-preset-codebase-memory-context/"
-        "archive/refs/tags/v1.0.0.zip"
+        "archive/refs/tags/v1.0.1.zip"
     ) in readme
     assert "codebase-memory-mcp 0.10.8 or newer" in readme
     assert "does not require\nPyYAML" in readme
@@ -75,6 +79,12 @@ def test_release_files_and_documentation_are_publishable():
     assert "11,778 nodes and 58,243 edges" in report
     assert "2,076 nodes and 4,385 edges" in report
     assert "e554ba44b3fa9288ebb300d1a190e6491e85b36a3670fbb10db523c450147beb" in report
+
+    workflow = workflow_report.read_text(encoding="utf-8")
+    assert "protocol version `2025-06-18`" in workflow
+    assert "`tools/call` returned `isError: false`" in workflow
+    assert "`2 passed in 0.00s`" in workflow
+    assert "93803809b76077664d1bf1fe4e6f9aae2f17b433ab13be4bcf9d8e69f53a3244" in workflow
 
 
 def test_installed_codebase_memory_backend_contract():
@@ -115,13 +125,89 @@ def test_installed_codebase_memory_backend_contract():
         assert flags <= set(re.findall(r"--[a-z][a-z-]+", output))
 
 
+def test_installed_codebase_memory_mcp_stdio_contract():
+    assert CODEBASE_MEMORY_CLI is not None, (
+        "codebase-memory-mcp must be installed; CI pins the supported backend "
+        "in requirements-dev.txt"
+    )
+    requests = [
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2025-06-18",
+                "capabilities": {},
+                "clientInfo": {
+                    "name": "preset-contract-test",
+                    "version": "1.0.1",
+                },
+            },
+        },
+        {
+            "jsonrpc": "2.0",
+            "method": "notifications/initialized",
+            "params": {},
+        },
+        {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
+        {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "tools/call",
+            "params": {
+                "name": "list_projects",
+                "arguments": {"limit": 1, "offset": 0},
+            },
+        },
+    ]
+    payload = "".join(json.dumps(request) + "\n" for request in requests)
+    result = subprocess.run(
+        [CODEBASE_MEMORY_CLI],
+        input=payload,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
+    responses = {
+        response["id"]: response
+        for line in result.stdout.splitlines()
+        if line.strip()
+        for response in [json.loads(line)]
+        if "id" in response
+    }
+
+    initialize = responses[1]["result"]
+    assert initialize["protocolVersion"] == "2025-06-18"
+    assert initialize["serverInfo"]["name"] == "codebase-memory-mcp"
+    assert Version(initialize["serverInfo"]["version"]) >= Version("0.10.8")
+
+    required_tools = {
+        "index_repository",
+        "search_graph",
+        "trace_path",
+        "get_code_snippet",
+        "get_architecture",
+        "list_projects",
+        "index_status",
+        "check_index_coverage",
+    }
+    listed_tools = {tool["name"] for tool in responses[2]["result"]["tools"]}
+    assert required_tools <= listed_tools
+
+    call_result = responses[3]["result"]
+    assert call_result["isError"] is False
+    assert "projects" in call_result["structuredContent"]
+
+
 def test_manifest_declares_replace_layers():
     manifest = PresetManifest(PRESET_DIR / "preset.yml")
     expected_entries = {("command", name) for name in ALL_COMMAND_NAMES}
     expected_entries.add(("template", OUTPUT_TEMPLATE_NAME))
 
     assert manifest.id == "codebase-memory-context"
-    assert manifest.version == "1.0.0"
+    assert manifest.version == "1.0.1"
     assert manifest.requires_speckit_version == ">=1.0.1"
     assert manifest.data["preset"]["repository"] == (
         "https://github.com/philo-x/spec-kit-preset-codebase-memory-context"
@@ -214,7 +300,7 @@ def test_generator_and_output_template_resolve_without_core_layers(tmp_path):
     command_layers = resolver.collect_all_layers(GENERATOR_COMMAND_NAME, "command")
     assert len(command_layers) == 1
     assert command_layers[0]["strategy"] == "replace"
-    assert command_layers[0]["source"] == "codebase-memory-context v1.0.0"
+    assert command_layers[0]["source"] == "codebase-memory-context v1.0.1"
     assert resolver.resolve_core(GENERATOR_COMMAND_NAME, "command") is None
     assert resolver.resolve_content(GENERATOR_COMMAND_NAME, "command") == (
         PRESET_DIR / "commands" / f"{GENERATOR_COMMAND_NAME}.md"
@@ -223,7 +309,7 @@ def test_generator_and_output_template_resolve_without_core_layers(tmp_path):
     template_layers = resolver.collect_all_layers(OUTPUT_TEMPLATE_NAME, "template")
     assert len(template_layers) == 1
     assert template_layers[0]["strategy"] == "replace"
-    assert template_layers[0]["source"] == "codebase-memory-context v1.0.0"
+    assert template_layers[0]["source"] == "codebase-memory-context v1.0.1"
     assert resolver.resolve_core(OUTPUT_TEMPLATE_NAME, "template") is None
     assert resolver.resolve_content(OUTPUT_TEMPLATE_NAME, "template") == (
         PRESET_DIR / "templates" / f"{OUTPUT_TEMPLATE_NAME}.md"

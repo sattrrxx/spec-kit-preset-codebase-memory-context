@@ -26,10 +26,10 @@ preset-owned output template directly.
 
 ## Installation
 
-Install the v1.0.0 release archive from a Spec Kit project:
+Install the v1.0.1 release archive from a Spec Kit project:
 
 ```bash
-specify preset add --from https://github.com/philo-x/spec-kit-preset-codebase-memory-context/archive/refs/tags/v1.0.0.zip
+specify preset add --from https://github.com/philo-x/spec-kit-preset-codebase-memory-context/archive/refs/tags/v1.0.1.zip
 ```
 
 For local development:
@@ -57,9 +57,14 @@ the Spring Boot Maven profile. The reproducible procedure, source commits,
 graph/index results, refresh check, limitations, and generated artifacts are in
 [the v1.0.0 field-validation report](docs/validation/v1.0.0.md).
 
+The [v1.0.1 MCP and workflow report](docs/validation/v1.0.1.md) additionally
+verifies a real stdio MCP handshake, tool discovery, and tool call, then records
+a disposable `context -> plan -> tasks -> analyze -> implement` smoke test.
+
 CI installs `codebase-memory-mcp==0.10.8` from PyPI, verifies the executable,
-and runs the backend contract test without a skip path. A green workflow
-therefore requires the supported backend to be present and compatible.
+and runs both CLI and stdio MCP contract tests without a skip path. A green
+workflow therefore requires the supported backend and an operational MCP tool
+call to be present and compatible.
 
 Remove the preset with:
 
