@@ -26,10 +26,10 @@ preset-owned output template directly.
 
 ## Installation
 
-Install the v1.0.1 release archive from a Spec Kit project:
+Install the v1.0.2 release archive from a Spec Kit project:
 
 ```bash
-specify preset add --from https://github.com/philo-x/spec-kit-preset-codebase-memory-context/archive/refs/tags/v1.0.1.zip
+specify preset add --from https://github.com/philo-x/spec-kit-preset-codebase-memory-context/archive/refs/tags/v1.0.2.zip
 ```
 
 For local development:

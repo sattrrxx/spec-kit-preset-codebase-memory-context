@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-09-03
+
 ### Changed
 
 - Bumped document contract to **`schema_version: "2.0"`**, with backwards-compatible upgrade handling for owned 1.0 documents during refresh.
@@ -46,6 +48,7 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Installation and rendering coverage for skills-based and command-based agent
   integrations.
 
-[Unreleased]: https://github.com/philo-x/spec-kit-preset-codebase-memory-context/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/philo-x/spec-kit-preset-codebase-memory-context/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/philo-x/spec-kit-preset-codebase-memory-context/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/philo-x/spec-kit-preset-codebase-memory-context/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/philo-x/spec-kit-preset-codebase-memory-context/releases/tag/v1.0.0

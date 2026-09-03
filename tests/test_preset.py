@@ -70,7 +70,7 @@ def test_release_files_and_documentation_are_publishable():
     assert (
         "specify preset add --from "
         "https://github.com/philo-x/spec-kit-preset-codebase-memory-context/"
-        "archive/refs/tags/v1.0.1.zip"
+        "archive/refs/tags/v1.0.2.zip"
     ) in readme
     assert "codebase-memory-mcp 0.10.8 or newer" in readme
     assert "does not require\nPyYAML" in readme
@@ -140,7 +140,7 @@ def test_installed_codebase_memory_mcp_stdio_contract():
                 "capabilities": {},
                 "clientInfo": {
                     "name": "preset-contract-test",
-                    "version": "1.0.1",
+                    "version": "1.0.2",
                 },
             },
         },
@@ -207,7 +207,7 @@ def test_manifest_declares_replace_layers():
     expected_entries.add(("template", OUTPUT_TEMPLATE_NAME))
 
     assert manifest.id == "codebase-memory-context"
-    assert manifest.version == "1.0.1"
+    assert manifest.version == "1.0.2"
     assert manifest.requires_speckit_version == ">=1.0.1"
     assert manifest.data["preset"]["repository"] == (
         "https://github.com/philo-x/spec-kit-preset-codebase-memory-context"
@@ -238,7 +238,7 @@ def test_install_resolves_replacement_without_composition(tmp_path):
     (project_root / ".specify").mkdir(parents=True)
 
     manager = PresetManager(project_root)
-    manager.install_from_directory(PRESET_DIR, "1.0.1")
+    manager.install_from_directory(PRESET_DIR, "1.0.2")
     resolver = PresetResolver(project_root)
 
     for command_name in CORE_OVERRIDE_COMMAND_NAMES:
@@ -305,13 +305,13 @@ def test_generator_and_output_template_resolve_without_core_layers(tmp_path):
     (project_root / ".specify").mkdir(parents=True)
 
     manager = PresetManager(project_root)
-    manager.install_from_directory(PRESET_DIR, "1.0.1")
+    manager.install_from_directory(PRESET_DIR, "1.0.2")
     resolver = PresetResolver(project_root)
 
     command_layers = resolver.collect_all_layers(GENERATOR_COMMAND_NAME, "command")
     assert len(command_layers) == 1
     assert command_layers[0]["strategy"] == "replace"
-    assert command_layers[0]["source"] == "codebase-memory-context v1.0.1"
+    assert command_layers[0]["source"] == "codebase-memory-context v1.0.2"
     assert resolver.resolve_core(GENERATOR_COMMAND_NAME, "command") is None
     assert resolver.resolve_content(GENERATOR_COMMAND_NAME, "command") == (
         PRESET_DIR / "commands" / f"{GENERATOR_COMMAND_NAME}.md"
@@ -320,7 +320,7 @@ def test_generator_and_output_template_resolve_without_core_layers(tmp_path):
     template_layers = resolver.collect_all_layers(OUTPUT_TEMPLATE_NAME, "template")
     assert len(template_layers) == 1
     assert template_layers[0]["strategy"] == "replace"
-    assert template_layers[0]["source"] == "codebase-memory-context v1.0.1"
+    assert template_layers[0]["source"] == "codebase-memory-context v1.0.2"
     assert resolver.resolve_core(OUTPUT_TEMPLATE_NAME, "template") is None
     assert resolver.resolve_content(OUTPUT_TEMPLATE_NAME, "template") == (
         PRESET_DIR / "templates" / f"{OUTPUT_TEMPLATE_NAME}.md"
