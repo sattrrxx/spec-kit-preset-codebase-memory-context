@@ -277,7 +277,18 @@ def test_generator_command_is_complete_and_uses_current_backend_contract():
     assert "check_index_coverage" in content
     assert "include_evidence=true" in content
     assert "Not observed in verified scope" in content
-    assert "spring-boot-maven" in content
+    assert "Manifest-driven stack and profile detection" in content
+    assert "Universal architecture metamodel probing" in content
+    assert "Idiomatic Self-Introspection Protocol" in content
+    assert "Primary Stack (Full 8-Dimension Probing)" in content
+    assert "Secondary Stacks (Targeted Boundary & Command Probing)" in content
+    assert "D1. Bootstrap & Lifecycle" in content
+    assert "D2. Routing & Interface Boundaries" in content
+    assert "D5. Persistence & Schema Migrations" in content
+    assert "D7. Security & Auth Guards" in content
+    assert "D8. Testing Strategy & Operational Commands" in content
+    assert "Security and Trust Boundaries" in content
+    assert "Operational Constraints and Packaging" in content
     assert "one or two meaningful entry points" in content
     assert "stop after five representative traces" in content
     assert "PROJECT OVERRIDES START" in content
@@ -322,11 +333,20 @@ def test_output_template_has_stable_schema_and_override_markers():
     ).read_text(encoding="utf-8")
 
     assert template.startswith("---\n")
-    assert 'schema_version: "1.0"' in template
+    assert 'schema_version: "2.0"' in template
     assert 'generator: "speckit.codebase-memory"' in template
     assert 'evidence_tier: "verify"' in template
-    for section_number in range(1, 15):
+    for section_number in range(1, 7):
         assert f"## {section_number}." in template
+    assert "## 1. Architecture Overview and Module Map" in template
+    assert "## 2. Core Flows and Interface Boundaries" in template
+    assert "### Security and Trust Boundaries" in template
+    assert "## 3. Data Persistence and Storage Model" in template
+    assert "## 4. Development Conventions and Validation Commands" in template
+    assert "### Operational Constraints and Packaging" in template
+    assert "[Build / Test / Lint / Run / Package / Deploy]" in template
+    assert "## 5. Evidence and Coverage Limitations" in template
+    assert "## 6. Project Overrides" in template
     assert template.count("<!-- PROJECT OVERRIDES START -->") == 1
     assert template.count("<!-- PROJECT OVERRIDES END -->") == 1
     assert template.index("<!-- PROJECT OVERRIDES START -->") < template.index(
@@ -388,7 +408,7 @@ def test_readme_documents_generator_and_context_contract():
 
     assert "one standalone generator command" in readme
     assert "`speckit.codebase-memory`" in readme
-    assert "Spring Boot Maven profile" in readme
+    assert "Universal Architecture Metamodel" in readme
     assert "Project Overrides" in readme
     assert "`--replace-existing`" in readme
     assert "There is no\nautomatic adopt mode" in readme

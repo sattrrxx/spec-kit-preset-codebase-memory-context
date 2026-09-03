@@ -82,13 +82,15 @@ The command:
 
 - prefers the codebase-memory MCP tool surface and falls back to its local CLI;
 - creates a full local graph index with `persistence=false` when needed;
-- performs a generic repository analysis for every project;
-- enables a deeper Spring Boot Maven profile when matching POM evidence exists;
+- performs manifest-driven stack and framework detection for every project;
+- probes the repository using a Universal Architecture Metamodel across 8 core
+  dimensions, adapting dynamically to the discovered framework (including
+  Spring Boot Maven, Go, Python/FastAPI, Node/NestJS, and polyglot setups);
 - verifies graph findings against current source, build, configuration, CI,
   deployment, documentation, and representative tests;
 - checks graph coverage for cited paths and bounded negative-claim scopes;
-- generates compact English context with explicit evidence and limitations;
-  and
+- generates compact English context across 6 focused architectural sections with
+  explicit evidence and limitations; and
 - preserves the marked Project Overrides section on later refreshes.
 
 The generator records repository-declared build, test, quality, run, and
@@ -105,8 +107,9 @@ Use this preset when:
   security boundaries, or validation commands;
 - later workflow stages need a shared architecture baseline with explicit
   uncertainty and source evidence; or
-- a Spring Boot Maven repository would benefit from repository-specific API,
-  persistence, security, testing, and deployment probes.
+- a repository (such as Spring Boot Maven, Go, Python, or polyglot stacks)
+  would benefit from framework-idiomatic API, persistence, security, testing,
+  and deployment probes.
 
 ## When Not to Use It
 
@@ -150,7 +153,7 @@ augmentation.
 
 | Command | Added behavior |
 |---|---|
-| `speckit.codebase-memory` | Generates or refreshes verified repository context with a generic baseline and optional Spring Boot Maven profile. |
+| `speckit.codebase-memory` | Generates or refreshes verified repository context using manifest detection and an 8-dimension Universal Architecture Metamodel. |
 | `speckit.plan` | Uses existing architecture and conventions to fill Technical Context, focus repository discovery, limit external research, and shape data models and contracts. |
 | `speckit.tasks` | Uses module and persistence conventions to anchor Setup and Foundational tasks in the existing codebase. |
 | `speckit.analyze` | Optionally checks plan and task references against repository context and corroborating repository evidence. |

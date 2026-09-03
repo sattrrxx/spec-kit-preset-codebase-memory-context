@@ -46,7 +46,8 @@ Before analysis, inspect `.specify/memory/codebase.md` if it exists.
    repository root.
 3. Otherwise, if it exists and its frontmatter has
    `generator: "speckit.codebase-memory"`:
-   - Require a supported `schema_version` no newer than `1.0`.
+   - Require a supported `schema_version` in `1.0` or `2.0`. When refreshing an
+     owned `1.0` document, upgrade the structure to schema `2.0`.
    - Require exactly one `<!-- PROJECT OVERRIDES START -->` marker and exactly
      one `<!-- PROJECT OVERRIDES END -->` marker, in that order and not nested.
    - Preserve every byte between the markers when writing the new document.
@@ -228,76 +229,78 @@ configuration key, category, and risk, with the value omitted.
 
 ### Phase 3: Generic baseline
 
-For every repository, determine or explicitly mark unknown:
+For every repository, anchor analysis around the core architectural pillars:
 
-1. system purpose and primary responsibilities;
-2. technology inventory and versions;
-3. module/package map, entry points, and dependency direction;
-4. representative request, event, job, CLI, library, and data flows;
-5. persistence model and transaction boundaries;
-6. external integration points and their verified usage status;
-7. security model and trust boundaries;
-8. testing strategy actually used in source;
-9. repository-specific coding and modification conventions;
-10. operational constraints and automation;
-11. high-impact known risks and technical debt;
-12. repository-declared build, test, quality, and run commands.
+1. system purpose, high-level architecture, and technology inventory;
+2. module and package hierarchy, dependency directions, and external entry points;
+3. request, event, job, CLI, and data flows with verified integration boundaries;
+4. data persistence model, storage drivers, and transactional boundaries;
+5. repository-specific coding conventions, testing frameworks, and validation commands.
 
-### Phase 4: Detect the Spring Boot Maven profile
+### Phase 4: Manifest-driven stack and profile detection
 
-Recursively inspect the Maven reactor. Enable the `spring-boot-maven` analysis
-profile when a root or child POM contains at least one strong Spring Boot signal:
+Recursively inspect repository root and child module build manifests (`pom.xml`,
+`build.gradle*`, `go.mod`, `package.json`, `pyproject.toml`, `requirements*.txt`,
+`Cargo.toml`, `Gemfile`, `composer.json`, etc.).
 
-- `spring-boot-starter-parent`;
-- imported `spring-boot-dependencies` BOM;
-- `spring-boot-maven-plugin`; or
-- a Spring Boot starter dependency.
+1. **Fingerprint runtime & frameworks**:
+   Identify the primary programming languages, runtimes, build systems, web/API
+   frameworks, and data persistence libraries.
+2. **Detect multi-stack or monorepo setups**:
+   Identify polyglot configurations (e.g., Go/Java backend service + TypeScript
+   web frontend, or multiple microservices).
+3. **Populate `analysis_profiles`**:
+   - Always retain `generic`.
+   - Add normalized profile identifiers for each detected stack (e.g.,
+     `java-spring-boot-maven`, `go-gin`, `python-fastapi-poetry`,
+     `typescript-nestjs`, `rust-axum`).
+   - For multi-stack repositories, designate the primary backend or core application
+     as the focal profile, and tag secondary stacks for boundary tracking.
 
-Spring Boot Gradle and other stacks remain on the generic profile in V1. Record
-that the specialized profile was unavailable in Evidence and Coverage
-Limitations rather than applying Spring-specific assumptions.
+### Phase 5: Universal architecture metamodel probing (Idiomatic Self-Introspection)
 
-### Phase 5: Spring Boot Maven probes
+Apply the Idiomatic Self-Introspection Protocol across detected stacks:
 
-When the profile is enabled, investigate:
+1. **Primary Stack (Full 8-Dimension Probing)**:
+   For the primary backend or core application stack, introspect and probe all 8 dimensions:
+   - **D1. Bootstrap & Lifecycle**: Process entry points, DI container configuration,
+     application factory functions, lifecycle hooks, graceful shutdown.
+   - **D2. Routing & Interface Boundaries**: Route registration patterns (annotations,
+     declarative routes, router groups), parameter binding/validation, response
+     envelopes, global exception/error handlers.
+   - **D3. Pipeline & Middlewares**: Request/response interception chains, filter
+     registration, execution ordering rules, AOP, context propagation (Trace/Auth).
+   - **D4. Domain & Transaction Boundaries**: Service layer conventions, business
+     logic isolation, transaction demarcation (declarative or programmatic),
+     rollback rules.
+   - **D5. Persistence & Schema Migrations**: Entity base classes, ORM/query builder
+     idioms, primary key strategies, audit fields, schema migration tools.
+   - **D6. External Integrations & Messaging**: Caching clients, message broker
+     producers/consumers, HTTP/RPC client abstractions, background jobs/schedulers.
+   - **D7. Security & Auth Guards**: Authentication mechanisms, token/session validation,
+     route authorization guards/RBAC, tenant/data isolation, credential boundaries.
+   - **D8. Testing Strategy & Operational Commands**: Testing frameworks, mock
+     libraries, integration test fixtures/containers, build plugins, quality gates.
 
-- Java, Spring Boot, Spring Cloud, parent/BOM, Maven modules, profiles, wrappers,
-  compiler, Surefire/Failsafe, packaging, private repositories, and plugins;
-- filesystem modules versus reactor modules, package scanning, runtime
-  dependencies, and final deployable artifacts;
-- `@SpringBootApplication`, `SpringApplication.run`, servlet initializers,
-  mapper scans, enablement annotations, test applications, jobs, and tools;
-- controllers, mappings, request validation, response envelopes, advice,
-  exception handlers, error codes, and internationalization;
-- filters, interceptors, Spring Security, AOP, response advice, and exception
-  pipelines. State ordering only when supported by `@Order`, `Ordered`, filter
-  registration, `addFilterBefore`, `addFilterAfter`, or equivalent source;
-- services, interface/implementation conventions, `@Transactional`, rollback
-  rules, cache, auditing, and hidden side effects;
-- entities, base model types, identifiers, audit filling, logical deletion,
-  tenant/data authority, repositories, mappers, XML mappings, database drivers,
-  schema initialization, Flyway/Liquibase, and test databases;
-- Redis, databases, Kafka/RabbitMQ/RocketMQ/JMS, Feign, RestTemplate, WebClient,
-  SOAP/WSDL, FTP/SFTP, object/file storage, Quartz/XXL-JOB, email/SMS,
-  observability, and third-party authentication. Do not report absent items one
-  by one; report only discovered integrations or material declaration/usage
-  conflicts;
-- security configuration, authentication providers, JWT/OAuth/session stores,
-  URL and method authorization, RBAC, data authority, tenant boundaries,
-  request encryption, nonce/replay controls, login failure handling, and all
-  repository-specific locations that must change for an anonymous API;
-- `application*.yml`, `application*.yaml`, `application*.properties`, bootstrap
-  configuration, profiles, environment variables, and configuration centers;
-- actual JUnit/TestNG imports, Spring test context, Mockito, MockMvc, H2,
-  Testcontainers, Surefire/Failsafe, and coverage configuration. If there are
-  one or two tests, read all; otherwise sample three to five across modules and
-  styles. Never invent coverage percentages;
-- JDK/Maven requirements, profiles, ports, databases, caches, messaging,
-  licenses, JVM options, logging, initialization, packaging, Docker image and
-  copy target, startup command, CI, lint, format, Sonar, JaCoCo, Checkstyle,
-  SpotBugs, and PMD;
-- repository-specific rules for adding a module, API, entity/persistence
-  adapter, service, test, and configuration. Do not emit generic Spring advice.
+2. **Secondary Stacks (Targeted Boundary & Command Probing)**:
+   For secondary stacks (e.g. frontend SPA, CLI tool, auxiliary worker, or satellite service),
+   probe an explicitly scoped subset to capture client-side entry, integration boundaries, and
+   commands without exceeding word budget:
+   - **D1 (Entry & Bootstrap)**: Application root, client bootstrap, build output artifacts.
+   - **D2 (Routing & Interface Boundaries)**: Client-side routing, page/view boundaries, API client layer.
+   - **D6 (External Integrations)**: Backend API endpoints consumed, external third-party SDKs.
+   - **D7 (Security & Auth)**: Client-side auth storage (cookies/tokens), route guards.
+   - **D8 (Validation Commands)**: Secondary build, test, lint, dev-server, and package commands.
+
+3. **Execute Evidence Probes**:
+   - Query `codebase-memory-mcp` (or CLI fallback) and direct repository files for
+     the concrete symbols, annotations, and paths identified above.
+   - Every material claim must cite concrete repository paths and qualified symbols.
+   - Map security findings (D7) directly into the Security and Trust Boundaries subsection.
+   - Map operational and packaging findings (D8) directly into the Operational Constraints and Packaging subsection and Validation Commands table.
+   - Separate Confidence (`Verified`, `Corroborated`, `Inferred`, `Unknown`) from
+     Usage Status (`Declared-only`, `Wired`, `Statically reachable`, etc.).
+   - Do NOT emit generic framework tutorials; document only repository-verified realities.
 
 ### Phase 6: Representative traces
 
@@ -348,15 +351,16 @@ unused, missing, dead, or exhaustive.
 
 Build the complete document in memory before writing anything.
 
-- Follow the resolved template's frontmatter and heading order.
+- Follow the resolved template's frontmatter and 6-section heading order.
+- Emit `schema_version: "2.0"` in frontmatter.
 - Replace `[SOURCE_COMMIT]`, `[WORKING_TREE]`, `[PROJECT_NAME]`, and every other
   scaffold placeholder with current values or explicit `Unknown` text.
-- Keep `generic` in `analysis_profiles`; add `spring-boot-maven` only when the
-  detection criteria were met.
-- Write in English. Target 1,800 to 3,000 words and never exceed 4,000 generated
+- Keep `generic` in `analysis_profiles`; add normalized detected stack profile
+  identifiers.
+- Write in English. Target 1,200 to 2,500 words and never exceed 3,500 generated
   words, excluding Project Overrides.
-- Include at most five representative traces and eight high-value risk items.
-- Preserve Maven reactor order. Sort other tables by stable repository-relative
+- Include at most five representative traces.
+- Preserve reactor/module order. Sort other tables by stable repository-relative
   identifiers. Do not add generation timestamps or volatile graph counts.
 - Attach repository-relative paths to important facts and qualified symbols or
   configuration keys where useful. Line numbers are optional because they
@@ -367,7 +371,7 @@ Build the complete document in memory before writing anything.
   Overrides do not increase generated confidence; note material conflicts in
   Evidence and Coverage Limitations without editing the manual text.
 - Verify that no secret value appears, no unexplained scaffold placeholder
-  remains, every required section is present, confidence and usage status are
+  remains, all 6 required sections are present, confidence and usage status are
   not conflated, and all absolute negative claims satisfy the coverage rule.
 
 ## Write and Completion Report
@@ -394,11 +398,11 @@ Report:
 
 - [ ] Ownership and output template were validated before analysis
 - [ ] MCP or CLI backend and exact graph project were established
-- [ ] Generic baseline and any detected Spring Boot Maven profile were completed
+- [ ] Generic baseline and universal metamodel probing across all 8 dimensions were completed
 - [ ] Representative traces used exact symbols and verified material hops
 - [ ] Evidence paths and negative-claim scopes received coverage checks
 - [ ] Original manifests, configuration, CI, deployment, and tests were inspected
-- [ ] Output contains all required sections with explicit uncertainty
+- [ ] Output contains all 6 required sections with explicit uncertainty
 - [ ] Secret values, static-runtime overclaims, and unsupported absolutes are absent
 - [ ] Only the target context file was created or updated
 - [ ] Completion report identifies profiles, backend, coverage limits, and changes

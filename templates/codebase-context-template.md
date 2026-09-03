@@ -1,5 +1,5 @@
 ---
-schema_version: "1.0"
+schema_version: "2.0"
 generator: "speckit.codebase-memory"
 analysis_profiles:
   - generic
@@ -13,96 +13,62 @@ evidence_tier: "verify"
 > Generated from current repository evidence. Inferred or unknown conclusions
 > are marked explicitly. Repository paths are relative to the repository root.
 
-## 1. System Purpose
+## 1. Architecture Overview and Module Map
 
-[Describe the system's purpose, users, and primary responsibilities.]
+### System Purpose and Technology Stack
+[Describe the system's core responsibilities and primary technology stack (languages, runtimes, primary frameworks, key libraries, and versions).]
 
-## 2. Technology Inventory
-
-| Layer | Technology | Version / Detail | Usage Status | Confidence | Evidence |
-|---|---|---|---|---|---|
-| [Layer] | [Technology] | [Version or detail] | [Status] | [Confidence] | [Path or symbol] |
-
-## 3. Module and Package Map
-
-### Module Tree
-
-[List build modules in stable build-file order and group low-value modules when appropriate.]
-
-### Dependency Direction
-
-[Describe verified dependency direction and major boundaries.]
-
-### Package Conventions
-
-[Describe repository-specific package placement rules.]
+### Module Layout and Boundaries
+[List repository modules, packages, or directory structure in build/dependency order, describing verified dependency directions and major boundaries.]
 
 ### Entry Points
+[List deployable web servers, CLI binaries, background jobs, event listeners, or public library exports.]
 
-[List deployable, job, listener, CLI, or public library entry points.]
+## 2. Core Flows and Interface Boundaries
 
-## 4. Request, Messaging, Job, and Data Flows
+### Request Pipeline and Middleware
+[Describe the global request/execution pipeline: routing mechanism, filters, middlewares, interceptors, and exception/error handling conventions in verified execution order.]
 
-### Global Request and Exception Pipeline
-
-[Describe only ordering supported by registration or source evidence.]
+### Security and Trust Boundaries
+[Describe authentication mechanisms, token/session validation, authorization guards/RBAC, tenant/data isolation, credential boundaries, and public versus protected endpoint conventions without secret values.]
 
 ### Representative Traces
+[Summarize one to five representative business flows with their entry point, major hops across layers, transaction boundary, side effects (cache, events, external calls), and failure path.]
 
-[Summarize one to five representative flows with their entry, major hops,
-transaction boundary, side effects, external boundary, and failure path.]
+### External Integrations
+[List external databases, caches, message brokers, third-party APIs, and downstream services with verified usage status, consumer mechanism, and evidence.]
 
-## 5. Persistence Model and Transaction Boundaries
+## 3. Data Persistence and Storage Model
 
-[Describe storage technologies, model conventions, identifiers, auditing,
-tenant or logical-delete behavior, migrations, and transaction boundaries.]
+### Storage and Entity Conventions
+[Describe storage technologies, entity/model base classes, primary key/identifier strategies, auditing fields, logical deletion, and tenant/data scoping conventions.]
 
-## 6. Integration Points
+### Transactions and Schema Migrations
+[Describe transaction demarcation patterns (declarative or programmatic boundaries, rollback rules) and database migration/schema management tooling.]
 
-| Integration | Mechanism | Consumer | Usage Status | Confidence | Evidence |
-|---|---|---|---|---|---|
-| [Integration] | [Mechanism] | [Consumer] | [Status] | [Confidence] | [Path or symbol] |
+## 4. Development Conventions and Validation Commands
 
-## 7. Security Model
+### Coding and Design Patterns
+[Describe repository-specific patterns for organizing services, interfaces/implementations, dependency injection, validation, and error envelopes.]
 
-[Describe authentication, authorization, data authority, tenant boundaries,
-request protection, and repository-specific whitelist rules without secret values.]
+### Testing Strategy
+[Describe test frameworks in actual use, unit/integration boundaries, test data/fixture setup, mock conventions, and representative test files.]
 
-## 8. Testing Strategy
+### Operational Constraints and Packaging
+[Describe required runtimes, profiles, containerization/packaging behavior (Docker, OCI, JAR, standalone binary), environment configuration, and port/network conventions.]
 
-[Describe test frameworks actually used, unit/integration boundaries, naming,
-required infrastructure, Maven plugins, and representative test patterns.]
-
-## 9. Coding and Repository Modification Conventions
-
-[Record repository-specific rules for modules, APIs, services, models,
-persistence adapters, exceptions, validation, tests, and configuration.]
-
-## 10. Operational Constraints and Automation
-
-[Describe required runtimes, profiles, ports, infrastructure, packaging,
-container/deployment behavior, CI, quality gates, and documented constraints.]
-
-## 11. Known Risks and Technical Debt
-
-| Finding | Impact | Confidence | Evidence | Recommendation |
-|---|---|---|---|---|
-| [High-value finding] | [Impact] | [Confidence] | [Path or symbol] | [Actionable recommendation] |
-
-## 12. Build, Test, Quality, and Run Commands
+### Validation Commands
 
 | Purpose | Command | Preconditions | Evidence |
 |---|---|---|---|
-| [Purpose] | `[Repository-declared command]` | [Required profile or infrastructure] | [Wrapper, POM, CI, or documentation path] |
+| [Build / Test / Lint / Run / Package / Deploy] | `[Repository-declared command]` | [Required profile, runtime, or env] | [Config, CI, wrapper, or README path] |
 
-## 13. Evidence and Coverage Limitations
+## 5. Evidence and Coverage Limitations
 
-[Record the codebase-memory project and index status, bounded scopes checked,
-excluded or stale paths read directly, unresolved external behavior, and any
-conclusion that remains inferred or unknown.]
+[Record the codebase-memory project and index status, verified bounded scopes, excluded or stale paths inspected directly, unverified external dependencies, and any conclusion that remains inferred or unknown.]
 
 <!-- PROJECT OVERRIDES START -->
-## 14. Project Overrides
+## 6. Project Overrides
 
 > Human-maintained and preserved verbatim. The generator does not validate this
 > section or use it to raise the confidence of generated findings.
