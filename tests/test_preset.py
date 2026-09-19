@@ -1,10 +1,12 @@
 """Tests for the Verified Codebase Context preset."""
 
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
+import sysconfig
 from pathlib import Path
 
 import pytest
@@ -38,12 +40,33 @@ COMPLETION_MARKERS = {
     "speckit.implement": "## Done When",
 }
 
-ENV_CODEBASE_MEMORY_CLI = Path(sys.executable).with_name("codebase-memory-mcp")
-CODEBASE_MEMORY_CLI = (
-    str(ENV_CODEBASE_MEMORY_CLI)
-    if ENV_CODEBASE_MEMORY_CLI.is_file()
-    else shutil.which("codebase-memory-mcp")
-)
+def _resolve_cli(name: str) -> str | None:
+    candidates = []
+    script_dirs = [
+        Path(sysconfig.get_path("scripts")),
+        Path(sys.executable).resolve().parent,
+    ]
+    for directory in script_dirs:
+        if directory.exists():
+            candidates.append(directory / name)
+            if os.name == "nt":
+                candidates.append(directory / f"{name}.exe")
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        if not directory:
+            continue
+        path = Path(directory) / name
+        candidates.append(path)
+        if os.name == "nt":
+            candidates.append(Path(directory) / f"{name}.exe")
+
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    return shutil.which(name)
+
+
+CODEBASE_MEMORY_CLI = _resolve_cli("codebase-memory-mcp")
 
 
 def test_release_files_and_documentation_are_publishable():
